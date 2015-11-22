@@ -8,8 +8,17 @@
  * @property {string} name
  * @property {number} cost
  * @property {string} description
- * @method   printDetails
+ * @method   getDetails
  */
+
+function Spell(name, cost, description) {
+  this.name = name;
+  this.cost = cost;
+  this.description = description;
+  this.getDetails = function() {
+    return this.name + " costs " + this.cost + " in order to " + this.description;
+  };
+}
 
   /**
    * Returns a string of all of the spell's details.
@@ -43,6 +52,17 @@
  * @property {number} damage
  * @property {string} description
  */
+
+function DamageSpell(name, cost, damage, description) {
+  Spell.call(this, name, cost, description);
+  this.damage = damage;
+}
+
+DamageSpell.prototype = Object.create(Spell.prototype, {
+  constructor: {
+    value: Spell
+  }
+});
 
 /**
  * Now that you've created some spells, let's create
@@ -81,6 +101,59 @@
    * @param  {number} cost      The amount of mana to spend.
    * @return {boolean} success  Whether mana was successfully spent.
    */
+
+function Spellcaster(name, health, mana) {
+  this.name = name;
+  this.health = health;
+  this.mana = mana;
+  this.isAlive = true; // can you cast so good?
+
+  this.inflictDamage = function(damage) {
+    if (this.health - damage < 0) {
+      this.health = 0;
+    } else {
+      this.health -= damage;
+    }
+    if (this.health === 0) {
+      this.isAlive = false;
+    }
+  };
+
+  this.spendMana = function(cost) {
+    if (this.mana < cost) {
+      return false;
+    } else {
+      this.mana -= cost;
+      return true;
+    }
+  };
+
+  this.invoke = function(spell, target) {
+    // debugger;
+    if (!(spell instanceof Spell)) {
+      return false;
+    }
+    if (spell instanceof Spell && (!(spell instanceof DamageSpell))) {
+      if (this.spendMana(spell.cost) === true) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    if (spell instanceof DamageSpell && target instanceof Spellcaster) {
+      if (this.spendMana(spell.cost) === true) {
+        target.inflictDamage(spell.damage);
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  };
+
+}
+
 
   /**
    * @method invoke
