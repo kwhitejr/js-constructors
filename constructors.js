@@ -128,28 +128,57 @@ function Spellcaster(name, health, mana) {
     }
   };
 
+  this.canCast = function(cost) {
+    if (this.mana < cost) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
   this.invoke = function(spell, target) {
     // debugger;
     if (!(spell instanceof Spell)) {
       return false;
     }
-    if (spell instanceof Spell && (!(spell instanceof DamageSpell))) {
-      if (this.spendMana(spell.cost) === true) {
+
+
+    // if (spell instanceof Spell && (!(spell instanceof DamageSpell))) {
+    //   if (this.spendMana(spell.cost) === true) {
+    //     return true;
+    //   } else {
+    //     return false;
+    //   }
+    // }
+    // if (spell instanceof DamageSpell && target instanceof Spellcaster) {
+    //   if (this.spendMana(spell.cost) === true) {
+    //     target.inflictDamage(spell.damage);
+    //     return true;
+    //   } else {
+    //     return false;
+    //   }
+    // } else {
+    //   return false;
+    // }
+
+
+    if (spell instanceof Spell) {
+      if (this.canCast(spell.cost) === true) {
+        if (spell instanceof DamageSpell && target instanceof Spellcaster) {
+          target.inflictDamage(spell.damage);
+          this.spendMana(spell.cost);
+          return true;
+        } else if (spell instanceof DamageSpell && !(target instanceof Spellcaster)) {
+          return false;
+        }
+        this.spendMana(spell.cost);
         return true;
       } else {
         return false;
       }
     }
-    if (spell instanceof DamageSpell && target instanceof Spellcaster) {
-      if (this.spendMana(spell.cost) === true) {
-        target.inflictDamage(spell.damage);
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
+
+
   };
 
 }
